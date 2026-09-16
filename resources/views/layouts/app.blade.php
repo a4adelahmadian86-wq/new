@@ -13,7 +13,7 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 <link rel="stylesheet" href="/css/farast.css"><link rel="stylesheet" href="/css/ui-polish.css"><link rel="stylesheet" href="/css/site-premium.css"><link rel="stylesheet" href="/css/farast-app.css"><link rel="stylesheet" href="/css/finance.css">
 @if($isDashboard)
 <link rel="stylesheet" href="/css/dashboard-navigation.css">
-<link rel="stylesheet" href="/css/workspace-home.css?v=2">
+<link rel="stylesheet" href="/css/workspace-pages.css">
 @endif
 @if($isEditor)
 <meta name="farast-capabilities" content='@json($farastCapabilities)'><link rel="stylesheet" href="/css/voice.css"><link rel="stylesheet" href="/css/word-editor.css"><link rel="stylesheet" href="/css/word-editor-overrides.css"><link rel="stylesheet" href="/css/editor-pro.css"><link rel="stylesheet" href="/css/editor-workspace.css"><link rel="stylesheet" href="/css/editor-final-polish.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-2026-chrome.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-precision.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-ux.css?v=20260914"><link rel="stylesheet" href="/css/editor-file-picker.css?v=20260914"><link rel="stylesheet" href="/css/editor-scroll-final.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-selection-actions.css?v=20260915"><link rel="stylesheet" href="/css/editor-word-2026-responsive.css?v=20260916">
@@ -30,9 +30,16 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 @if($headerAnnouncements->isNotEmpty()&&request()->routeIs('home'))<div class="announcement-ticker"><div><i class="fa-solid fa-bullhorn"></i><b>{{ $headerAnnouncements->first()->title }}</b><span>{{ \Illuminate\Support\Str::limit($headerAnnouncements->first()->body,120) }}</span></div><a href="/announcements">مشاهده همه</a></div>@endif
 @endif
 <main id="app-main" class="{{ $isDashboard ? 'dashboard-shell' : '' }}">
-@if($isDashboard && auth()->check())<div class="dashboard-shell-inner">@include('components.dashboard-navigation')@endif
+@if($isDashboard && auth()->check())
+<div class="dashboard-shell-inner">
+    <x-dashboard-navigation />
+    <div class="dashboard-shell-content">
+@endif
 @yield('content')
-@if($isDashboard && auth()->check())</div>@endif
+@if($isDashboard && auth()->check())
+    </div>
+</div>
+@endif
 </main>
 @if(!$isEditor&&!$isAdmin&&!$isDashboard)<aside class="farast-cart-drawer" id="farastCartDrawer" aria-hidden="true"><div class="farast-cart-head"><strong>سبد خرید</strong><button type="button" data-cart-close aria-label="بستن"><i class="fa-solid fa-xmark"></i></button></div><div class="farast-cart-body" id="farastCartBody"></div><div class="farast-cart-foot"><span>جمع</span><strong id="farastCartTotal">۰ تومان</strong><button type="button" id="farastCartCheckout" disabled>ادامه پرداخت</button></div></aside><div class="farast-cart-backdrop" id="farastCartBackdrop" hidden></div><div class="farast-connectivity" id="farastConnectivity" aria-live="polite" hidden><div class="farast-connectivity-card"><div class="farast-connectivity-copy"><strong id="farastConnectivityTitle">اتصال اینترنت در دسترس نیست</strong><span id="farastConnectivityMessage">بخش‌های ذخیره‌شده در دسترس می‌مانند.</span></div><button type="button" id="farastConnectivityRetry" aria-label="تلاش دوباره"><i class="fa-solid fa-rotate-right"></i></button></div></div><button type="button" id="farastSoundToggle" class="farast-sound-toggle" aria-label="فعال یا غیرفعال کردن صدای رابط" aria-pressed="false"><i class="fa-solid fa-volume-high"></i></button>@endif
 @if(!$isEditor&&!$isAdmin&&!$isDashboard)<footer class="site-footer" dir="rtl"><div class="footer-top"><div class="footer-about"><div class="footer-brand"><span class="brand-mark farast-symbol"><i></i><i></i><i></i><i></i><b></b></span><b>فراست</b></div><p>فراست یک فضای یکپارچه برای فروش فایل‌های دیجیتال و ارائه خدمات تایپ، تبدیل، ویرایش و پردازش هوشمند است.</p></div><div class="footer-column"><h3>محصول و خدمات</h3><a href="/#farastStore">فروش فایل</a><a href="/editor">تایپ و تبدیل</a><a href="/pricing">قیمت‌گذاری</a><a href="/support">پشتیبانی</a></div><div class="footer-column"><h3>فضای کاربر</h3><a href="/dashboard">داشبورد</a><a href="/wallet">کیف پول</a><a href="/announcements">اعلانات</a></div></div><div class="footer-bottom"><span>© {{ now()->year }} فراست — تمامی حقوق محفوظ است.</span><div><a href="/privacy">حریم خصوصی</a><a href="/terms">قوانین استفاده</a><a href="/refund-policy">شرایط بازگشت وجه</a></div></footer>@endif
