@@ -4,7 +4,32 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#0b1734"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="mobile-web-app-title" content="فراست">
 <title>{{ $title ?? 'فراست' }}</title>
 @php
-$isEditor=request()->is('editor'); $isAdmin=request()->is('admin*'); $isDashboard=auth()->check()&&(request()->routeIs('dashboard')||request()->routeIs('wallet')||request()->routeIs('support')||request()->routeIs('library')||request()->routeIs('announcements')||request()->routeIs('workspace.*')||request()->routeIs('documents.*')||request()->routeIs('account.*')||request()->routeIs('ai.*')||request()->routeIs('modules.show')); $isAuthPage=request()->is('login*')||request()->is('register')||request()->is('forgot-password*');
+$isEditor=request()->is('editor')||request()->is('editor/*');
+$isAdmin=request()->is('admin')||request()->is('admin/*');
+$isDashboard=auth()->check()&&(
+  request()->is('dashboard')
+  ||request()->routeIs('dashboard')
+  ||request()->routeIs('wallet')
+  ||request()->routeIs('support')
+  ||request()->routeIs('library')
+  ||request()->routeIs('announcements')
+  ||request()->routeIs('workspace.*')
+  ||request()->routeIs('documents.*')
+  ||request()->routeIs('account.*')
+  ||request()->routeIs('ai.*')
+  ||request()->routeIs('modules.show')
+  ||request()->is('workspace/*')
+  ||request()->is('documents/*')
+  ||request()->is('account')
+  ||request()->is('account/*')
+  ||request()->is('ai/*')
+  ||request()->is('wallet')
+  ||request()->is('support')
+  ||request()->is('library')
+  ||request()->is('announcements')
+  ||request()->is('modules/*')
+);
+$isAuthPage=request()->is('login*')||request()->is('register')||request()->is('forgot-password*');
 $headerAnnouncements=collect(); $footerSocial=[]; $farastCapabilities=null;
 if($isEditor&&auth()->check()){$farastCapabilities=app(\App\Services\CapabilityService::class)->forUser(auth()->user());}
 if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::hasTable('announcements')){$headerAnnouncements=\App\Models\Announcement::visible()->latest()->limit(5)->get();}if(\Illuminate\Support\Facades\Schema::hasTable('site_settings')){$footerRaw=\App\Models\SiteSetting::read('social_links','[]');$decodedSocial=json_decode((string)$footerRaw,true);if(is_array($decodedSocial)){$footerSocial=array_values(array_filter($decodedSocial,static fn($item)=>is_array($item)&&filter_var($item['url']??'',FILTER_VALIDATE_URL)));}}}
@@ -12,9 +37,9 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 <link rel="preconnect" href="https://cdnjs.cloudflare.com"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="/css/farast.css"><link rel="stylesheet" href="/css/ui-polish.css"><link rel="stylesheet" href="/css/site-premium.css"><link rel="stylesheet" href="/css/farast-app.css"><link rel="stylesheet" href="/css/finance.css">
 @if($isDashboard)
-<link rel="stylesheet" href="/css/dashboard-navigation.css">
-<link rel="stylesheet" href="/css/dashboard-shell-fix.css">
-<link rel="stylesheet" href="/css/workspace-pages.css">
+<link rel="stylesheet" href="/css/dashboard-navigation.css?v=real-nav-4263788">
+<link rel="stylesheet" href="/css/dashboard-shell-fix.css?v=real-nav-4263788">
+<link rel="stylesheet" href="/css/workspace-pages.css?v=real-nav-4263788">
 @endif
 @if($isEditor)
 <meta name="farast-capabilities" content='@json($farastCapabilities)'><link rel="stylesheet" href="/css/voice.css"><link rel="stylesheet" href="/css/word-editor.css"><link rel="stylesheet" href="/css/word-editor-overrides.css"><link rel="stylesheet" href="/css/editor-pro.css"><link rel="stylesheet" href="/css/editor-workspace.css"><link rel="stylesheet" href="/css/editor-final-polish.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-2026-chrome.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-precision.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-ux.css?v=20260914"><link rel="stylesheet" href="/css/editor-file-picker.css?v=20260914"><link rel="stylesheet" href="/css/editor-scroll-final.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-selection-actions.css?v=20260915"><link rel="stylesheet" href="/css/editor-word-2026-responsive.css?v=20260916">
@@ -25,7 +50,15 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 @endif
 @if($isAuthPage)<link rel="stylesheet" href="/css/auth.css">@endif
 </head>
-<body class="{{ $isEditor?'editor-page-body':'' }} {{ $isAuthPage?'auth-page':'' }}">
+<body class="{{ $isEditor?'editor-page-body':'' }} {{ $isAuthPage?'auth-page':'' }} {{ $isDashboard?'is-farast-dashboard':'' }}" data-farast-build="4263788-real-nav">
+@if($isDashboard && auth()->check())
+<div id="farast-build-banner" style="position:fixed;z-index:99999;left:12px;bottom:12px;background:#0b1734;color:#fff;padding:10px 14px;border-radius:10px;font:11px Vazirmatn,Tahoma,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:280px;line-height:1.6">
+  <b style="color:#7dd3fc">FARAST NAV واقعی</b><br>
+  build: 4263788<br>
+  @if($isDashboard) shell: ON @else shell: OFF @endif
+  · اگر این نوار را می‌بینی، فایل‌های جدید لود شده‌اند.
+</div>
+@endif
 @if(!$isEditor&&!$isAdmin&&!$isDashboard)
 <header class="top premium-header" data-app-header><div class="header-inner"><a class="brand premium-brand" href="/" aria-label="فراست"><span class="brand-mark farast-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span><span><b>FARAST</b><small>فراست | فروش فایل و خدمات هوشمند</small></span></a><div class="header-search" role="search"><i class="fa-solid fa-magnifying-glass"></i><input id="farastGlobalSearch" type="search" placeholder="جستجوی فایل، خدمت یا موضوع..." autocomplete="off"><button type="button" id="farastVoiceSearch" aria-label="جستجوی صوتی"><i class="fa-solid fa-microphone"></i></button></div><nav class="main-nav"><a href="/"><i class="fa-solid fa-house"></i><span>خانه</span></a><a href="/#farastStore"><i class="fa-solid fa-store"></i><span>فروشگاه</span></a><a href="/editor"><i class="fa-solid fa-pen-ruler"></i><span>تایپ و خدمات</span></a><a href="/pricing"><i class="fa-solid fa-tags"></i><span>قیمت</span></a>@auth<a href="/dashboard"><i class="fa-solid fa-table-cells-large"></i><span>فضای من</span></a><a href="/support"><i class="fa-solid fa-headset"></i><span>پشتیبانی</span></a>@if(auth()->user()->isAdmin())<a href="/admin"><i class="fa-solid fa-user-shield"></i><span>مدیریت</span></a>@endif @else<a href="/login"><i class="fa-solid fa-right-to-bracket"></i><span>ورود</span></a>@endauth</nav><div class="header-actions"><button type="button" class="header-icon-button" id="farastCartButton" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping"></i><b id="farastCartCount">0</b></button><a class="header-cta" href="/editor"><i class="fa-solid fa-bolt"></i><span>شروع کار</span></a></div></div></header>
 @if($headerAnnouncements->isNotEmpty()&&request()->routeIs('home'))<div class="announcement-ticker"><div><i class="fa-solid fa-bullhorn"></i><b>{{ $headerAnnouncements->first()->title }}</b><span>{{ \Illuminate\Support\Str::limit($headerAnnouncements->first()->body,120) }}</span></div><a href="/announcements">مشاهده همه</a></div>@endif
@@ -33,7 +66,7 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 <main id="app-main" class="{{ $isDashboard ? 'dashboard-shell' : '' }}">
 @if($isDashboard && auth()->check())
 <div class="dashboard-shell-inner">
-    <x-dashboard-navigation />
+    @include('components.dashboard-navigation')
     <div class="dashboard-shell-content">
 @endif
 @yield('content')
