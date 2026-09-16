@@ -203,13 +203,20 @@ class EmailService
         try {
             $provider = $this->mailConfig->currentProvider();
 
-            // Resend از API مستقیم (بدون وابستگی اجباری به SDK)
             if ($provider === 'resend') {
                 $this->sendViaResendApi($to, $subject, $htmlView, $viewData);
-            } elseif (config('queue.default') === 'sync' || filter_var(SiteSetting::read('email_sync', false), FILTER_VALIDATE_BOOLEAN)) {
-                Mail::to($to)->send($mailable);
             } else {
-                Mail::to($to)->queue($mailable);
+                // sendmail/local: همزمان تا وابسته به queue worker نباشد
+                $selfHosted = in_array($provider, ['sendmail', 'local', 'smtp', 'log'], true);
+                $forceSync = $selfHosted
+                    || config('queue.default') === 'sync'
+                    || filter_var(SiteSetting::read('email_sync', true), FILTER_VALIDATE_BOOLEAN);
+
+                if ($forceSync) {
+                    Mail::to($to)->send($mailable);
+                } else {
+                    Mail::to($to)->queue($mailable);
+                }
             }
 
             $log->update(['status' => 'sent', 'sent_at' => now()]);
@@ -235,9 +242,6 @@ class EmailService
         }
     }
 
-    /**
-     * ارسال مستقیم با Resend API (رایگان و پایدار)
-     */
     protected function sendViaResendApi(string $to, string $subject, string $htmlView, array $viewData): void
     {
         $apiKey = SiteSetting::read('resend_api_key', env('RESEND_API_KEY'));
@@ -245,13 +249,6 @@ class EmailService
             throw new \RuntimeException('کلید Resend تنظیم نشده است.');
         }
 
-        $html = View::make($htmlView, $viewData)->render();
-        // layout را هم رندر کنیم اگر view فقط section دارد — برای otp و بقیه از extends استفاده می‌کنند
-        if (! str_contains($html, '<html')) {
-            $html = View::make('emails.layout', array_merge($viewData, ['subject' => $subject, 'slot' => $html]))->render();
-        }
-
-        // Blade extends خروجی کامل HTML می‌دهد؛ مستقیم استفاده می‌کنیم
         $html = View::make($htmlView, array_merge($viewData, ['subject' => $subject]))->render();
 
         $from = config('mail.from.address');
