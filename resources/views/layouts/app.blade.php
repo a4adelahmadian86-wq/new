@@ -15,7 +15,10 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 @if($isEditor)
 <meta name="farast-capabilities" content='@json($farastCapabilities)'><link rel="stylesheet" href="/css/voice.css"><link rel="stylesheet" href="/css/word-editor.css"><link rel="stylesheet" href="/css/word-editor-overrides.css"><link rel="stylesheet" href="/css/editor-pro.css"><link rel="stylesheet" href="/css/editor-workspace.css"><link rel="stylesheet" href="/css/editor-final-polish.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-2026-chrome.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-precision.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-ux.css?v=20260914"><link rel="stylesheet" href="/css/editor-file-picker.css?v=20260914"><link rel="stylesheet" href="/css/editor-scroll-final.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-selection-actions.css?v=20260915"><link rel="stylesheet" href="/css/editor-word-2026-responsive.css?v=20260916">
 @endif
-@if($isAdmin)<link rel="stylesheet" href="/css/admin.css?v=email-layout-fix">@endif
+@if($isAdmin)
+<link rel="stylesheet" href="/css/admin.css?v=email-layout-fix">
+<link rel="stylesheet" href="/css/admin-email.css?v=1">
+@endif
 @if($isAuthPage)<link rel="stylesheet" href="/css/auth.css">@endif
 </head>
 <body class="{{ $isEditor?'editor-page-body':'' }} {{ $isAuthPage?'auth-page':'' }}">
