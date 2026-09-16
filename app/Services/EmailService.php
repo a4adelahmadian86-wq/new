@@ -168,6 +168,15 @@ class EmailService
 
     public function sendTest(string $email): void
     {
+        $this->mailConfig->apply();
+        $provider = $this->mailConfig->currentProvider();
+
+        if ($provider === 'sendmail' && ! $this->mailConfig->sendmailBinaryAvailable()) {
+            throw new \RuntimeException(
+                'Sendmail روی این سیستم نصب نیست (روی ویندوز معمول است). در پنل ایمیل، سرویس‌دهنده را روی «لاگ داخلی سایت» بگذارید و دوباره تست کنید. ایمیل در storage/logs ذخیره می‌شود.'
+            );
+        }
+
         $this->dispatch(
             type: 'test',
             to: $email,
@@ -206,7 +215,6 @@ class EmailService
             if ($provider === 'resend') {
                 $this->sendViaResendApi($to, $subject, $htmlView, $viewData);
             } else {
-                // sendmail/local: همزمان تا وابسته به queue worker نباشد
                 $selfHosted = in_array($provider, ['sendmail', 'local', 'smtp', 'log'], true);
                 $forceSync = $selfHosted
                     || config('queue.default') === 'sync'
@@ -227,18 +235,25 @@ class EmailService
                 'log_id' => $log->id,
             ]);
         } catch (Throwable $e) {
+            $msg = $e->getMessage();
+            if (str_contains(strtolower($msg), 'mailpit')) {
+                $msg = 'اتصال به mailpit ممکن نیست. این host فقط در Docker کار می‌کند. در پنل ایمیل سرویس‌دهنده را «لاگ داخلی» بگذارید یا SMTP را روی 127.0.0.1 تنظیم کنید.';
+            } elseif (str_contains(strtolower($msg), 'sendmail')) {
+                $msg = 'Sendmail در دسترس نیست. روی ویندوز از «لاگ داخلی» استفاده کنید؛ روی سرور لینوکس Postfix/Sendmail نصب کنید.';
+            }
+
             $log->update([
                 'status' => 'failed',
-                'error' => mb_substr($e->getMessage(), 0, 1000),
+                'error' => mb_substr($msg, 0, 1000),
             ]);
 
             Log::error('farast.email.failed', [
                 'type' => $type,
                 'email_hash' => $this->hash($to),
-                'error' => $e->getMessage(),
+                'error' => $msg,
             ]);
 
-            throw $e;
+            throw new \RuntimeException($msg, 0, $e);
         }
     }
 
