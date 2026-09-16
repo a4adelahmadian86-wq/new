@@ -114,3 +114,5 @@ Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(func
     Route::post('/emails/test',[AdminController::class,'sendTestEmail'])->name('emails.test');
     Route::post('/tickets/{ticket}/reply',[SupportController::class,'adminReply'])->name('tickets.reply');
 });
+
+require __DIR__.'/dashboard-workspace.php';
