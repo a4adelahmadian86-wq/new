@@ -1,0 +1,5 @@
+FARAST REAL DASHBOARD STACK from farast/dashboard-navigation aa28699
+- multi-level nav sidebar (.farast-dashboard-nav)
+- workspace/documents/account/ai routes
+- dashboard-shell-content wrapper
+Verify: /dashboard has .farast-dashboard-nav AND .user-dashboard
