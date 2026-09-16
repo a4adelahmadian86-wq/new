@@ -13,6 +13,7 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 <link rel="stylesheet" href="/css/farast.css"><link rel="stylesheet" href="/css/ui-polish.css"><link rel="stylesheet" href="/css/site-premium.css"><link rel="stylesheet" href="/css/farast-app.css"><link rel="stylesheet" href="/css/finance.css">
 @if($isDashboard)
 <link rel="stylesheet" href="/css/dashboard-navigation.css">
+<link rel="stylesheet" href="/css/dashboard-shell-fix.css">
 <link rel="stylesheet" href="/css/workspace-pages.css">
 @endif
 @if($isEditor)
