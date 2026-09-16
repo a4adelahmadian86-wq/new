@@ -1,1 +1,0 @@
-FARAST temporary repository seed. This file will NOT remain in the final project.
