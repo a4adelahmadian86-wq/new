@@ -11,6 +11,13 @@ class DashboardNavigationService
     {
     }
 
+    /**
+     * Build the one dashboard tree for the current user.
+     *
+     * Navigation is presentation only. Destination authorization remains
+     * server-side in middleware/controllers; this service only projects the
+     * master registry into what the current principal may reasonably see.
+     */
     public function forUser(?User $user): array
     {
         return collect(config('dashboard.navigation', []))
@@ -47,6 +54,7 @@ class DashboardNavigationService
         }
 
         $routeName = $item['route'] ?? null;
+        $routeParams = $item['route_params'] ?? [];
         $planned = (bool) ($item['planned'] ?? false);
 
         if ($routeName !== null && ! Route::has($routeName)) {
@@ -61,10 +69,26 @@ class DashboardNavigationService
         $href = null;
         $active = false;
         if ($routeName !== null) {
-            $href = route($routeName).($item['fragment'] ?? '');
-            $active = request()->routeIs($routeName);
-            if ($active && isset($item['fragment'])) {
-                $active = request()->getRequestUri() === $href;
+            try {
+                $href = route($routeName, $routeParams).($item['fragment'] ?? '');
+            } catch (\Throwable) {
+                $href = null;
+                $planned = true;
+            }
+
+            if ($href !== null) {
+                $active = request()->routeIs($routeName);
+                if ($active && ! empty($routeParams)) {
+                    foreach ($routeParams as $key => $value) {
+                        if ((string) request()->route($key) !== (string) $value) {
+                            $active = false;
+                            break;
+                        }
+                    }
+                }
+                if ($active && isset($item['fragment'])) {
+                    $active = request()->url() === strtok($href, '#');
+                }
             }
         }
 
@@ -118,7 +142,7 @@ class DashboardNavigationService
         };
 
         if ($capability === null) {
-            return $permission === 'documents.view';
+            return in_array($permission, ['documents.view'], true);
         }
 
         return $this->capabilities->allowed($user, $capability);
