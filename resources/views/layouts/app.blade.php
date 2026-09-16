@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#0b1734"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="mobile-web-app-title" content="فراست">
 <title>{{ $title ?? 'فراست' }}</title>
 @php
-$isEditor=request()->is('editor'); $isAdmin=request()->is('admin*'); $isDashboard=request()->routeIs('dashboard')||request()->routeIs('admin.*'); $isAuthPage=request()->is('login*')||request()->is('register')||request()->is('forgot-password*');
+$isEditor=request()->is('editor'); $isAdmin=request()->is('admin*'); $isDashboard=auth()->check()&&(request()->routeIs('dashboard')||request()->routeIs('wallet')||request()->routeIs('support')||request()->routeIs('library')||request()->routeIs('announcements')||request()->routeIs('workspace.*')||request()->routeIs('documents.*')||request()->routeIs('account.*')||request()->routeIs('ai.*')||request()->routeIs('modules.show')); $isAuthPage=request()->is('login*')||request()->is('register')||request()->is('forgot-password*');
 $headerAnnouncements=collect(); $footerSocial=[]; $farastCapabilities=null;
 if($isEditor&&auth()->check()){$farastCapabilities=app(\App\Services\CapabilityService::class)->forUser(auth()->user());}
 if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::hasTable('announcements')){$headerAnnouncements=\App\Models\Announcement::visible()->latest()->limit(5)->get();}if(\Illuminate\Support\Facades\Schema::hasTable('site_settings')){$footerRaw=\App\Models\SiteSetting::read('social_links','[]');$decodedSocial=json_decode((string)$footerRaw,true);if(is_array($decodedSocial)){$footerSocial=array_values(array_filter($decodedSocial,static fn($item)=>is_array($item)&&filter_var($item['url']??'',FILTER_VALIDATE_URL)));}}}
@@ -15,7 +15,7 @@ if(!$isEditor&&!$isAdmin&&!$isDashboard){if(\Illuminate\Support\Facades\Schema::
 @if($isEditor)
 <meta name="farast-capabilities" content='@json($farastCapabilities)'><link rel="stylesheet" href="/css/voice.css"><link rel="stylesheet" href="/css/word-editor.css"><link rel="stylesheet" href="/css/word-editor-overrides.css"><link rel="stylesheet" href="/css/editor-pro.css"><link rel="stylesheet" href="/css/editor-workspace.css"><link rel="stylesheet" href="/css/editor-final-polish.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-2026-chrome.css?v=20260914"><link rel="stylesheet" href="/css/editor-word-precision.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-ux.css?v=20260914"><link rel="stylesheet" href="/css/editor-file-picker.css?v=20260914"><link rel="stylesheet" href="/css/editor-scroll-final.css?v=20260914"><link rel="stylesheet" href="/css/editor-ai-selection-actions.css?v=20260915"><link rel="stylesheet" href="/css/editor-word-2026-responsive.css?v=20260916">
 @endif
-@if($isAdmin)<link rel="stylesheet" href="/css/admin.css">@endif
+@if($isAdmin)<link rel="stylesheet" href="/css/admin.css?v=email-layout-fix">@endif
 @if($isAuthPage)<link rel="stylesheet" href="/css/auth.css">@endif
 </head>
 <body class="{{ $isEditor?'editor-page-body':'' }} {{ $isAuthPage?'auth-page':'' }}">
