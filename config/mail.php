@@ -1,15 +1,15 @@
 <?php
 
 return [
-    'default' => env('MAIL_MAILER', 'sendmail'),
+    'default' => env('MAIL_MAILER', 'log'),
 
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
             'scheme' => env('MAIL_SCHEME'),
             'url' => env('MAIL_URL'),
-            'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 25),
+            'host' => env('MAIL_HOST', '127.0.0.1') === 'mailpit' ? '127.0.0.1' : env('MAIL_HOST', '127.0.0.1'),
+            'port' => env('MAIL_HOST') === 'mailpit' ? 25 : env('MAIL_PORT', 25),
             'encryption' => env('MAIL_ENCRYPTION'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
@@ -45,7 +45,7 @@ return [
 
         'failover' => [
             'transport' => 'failover',
-            'mailers' => ['sendmail', 'smtp', 'log'],
+            'mailers' => ['log', 'smtp'],
         ],
     ],
 
