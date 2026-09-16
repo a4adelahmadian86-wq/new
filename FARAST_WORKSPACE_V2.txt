@@ -1,0 +1,4 @@
+FARAST workspace home v2
+Legacy user-dashboard markup removed.
+Verify: view-source /dashboard contains data-dashboard-version="v2"
+Verify: NOT contains class="container user-dashboard"

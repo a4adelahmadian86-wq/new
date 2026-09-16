@@ -1,27 +1,136 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="container user-dashboard" dir="rtl">
-    <header class="page-head">
-        <div><span class="eyebrow"><i class="fa-solid fa-gauge-high"></i> فضای کاری</span><h1>داشبورد شما</h1><p class="dashboard-sub">اسناد، ظرفیت حساب و قابلیت‌های فعال شما در یک نمای ساده و خصوصی.</p></div>
-        @if($capabilities['active'] && $capabilities['can_type'])<a class="btn primary" href="{{ route('editor') }}"><i class="fa-solid fa-plus"></i> تایپ جدید</a>@endif
+{{-- FARAST Workspace Home v2 — داشبورد قدیمی حذف شده است --}}
+<div class="workspace-home" dir="rtl" data-dashboard-version="v2">
+    <header class="workspace-home__hero">
+        <div class="workspace-home__hero-copy">
+            <span class="workspace-home__kicker"><i class="fa-solid fa-layer-group"></i> فضای کاری فراست</span>
+            <h1>سلام{{ auth()->user()->name ? '، '.auth()->user()->name : '' }}</h1>
+            <p>اسناد، ظرفیت حساب و مسیرهای کاری از همین‌جا در دسترس‌اند. منوی کناری دسترسی کامل را نشان می‌دهد.</p>
+        </div>
+        <div class="workspace-home__hero-actions">
+            @if(($capabilities['active'] ?? false) && ($capabilities['can_type'] ?? false))
+                <a class="workspace-btn workspace-btn--primary" href="{{ route('editor') }}">
+                    <i class="fa-solid fa-plus"></i> تایپ جدید
+                </a>
+            @endif
+            <a class="workspace-btn workspace-btn--ghost" href="{{ route('wallet') }}">
+                <i class="fa-solid fa-wallet"></i> کیف پول
+            </a>
+        </div>
     </header>
-    <section class="cards dashboard-cards" aria-label="خلاصه حساب">
-        <div><b>{{ number_format($documents->count()) }}</b><span><i class="fa-solid fa-file-lines"></i> سندهای من</span></div>
-        <div><b>{{ $capabilities['unlimited'] ? 'نامحدود' : number_format($capabilities['weekly_free_pages']) }}</b><span><i class="fa-solid fa-gift"></i> صفحه رایگان هفتگی</span></div>
-        <div><b>{{ $capabilities['unlimited'] ? 'نامحدود' : number_format($capabilities['daily_ai_requests']) }}</b><span><i class="fa-solid fa-wand-magic-sparkles"></i> سقف AI روزانه</span></div>
-        <div><b>{{ $capabilities['unlimited'] ? 'نامحدود' : number_format($capabilities['max_file_mb']).' MB' }}</b><span><i class="fa-solid fa-file-arrow-up"></i> سقف فایل</span></div>
+
+    <section class="workspace-metrics" aria-label="خلاصه حساب">
+        <article class="workspace-metric">
+            <span class="workspace-metric__icon"><i class="fa-solid fa-file-lines"></i></span>
+            <div>
+                <b>{{ number_format($documents->count()) }}</b>
+                <small>سندهای من</small>
+            </div>
+        </article>
+        <article class="workspace-metric">
+            <span class="workspace-metric__icon workspace-metric__icon--green"><i class="fa-solid fa-gift"></i></span>
+            <div>
+                <b>{{ ($capabilities['unlimited'] ?? false) ? 'نامحدود' : number_format($capabilities['weekly_free_pages'] ?? 0) }}</b>
+                <small>صفحه رایگان هفتگی</small>
+            </div>
+        </article>
+        <article class="workspace-metric">
+            <span class="workspace-metric__icon workspace-metric__icon--violet"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <div>
+                <b>{{ ($capabilities['unlimited'] ?? false) ? 'نامحدود' : number_format($capabilities['daily_ai_requests'] ?? 0) }}</b>
+                <small>سقف AI روزانه</small>
+            </div>
+        </article>
+        <article class="workspace-metric">
+            <span class="workspace-metric__icon workspace-metric__icon--cyan"><i class="fa-solid fa-file-arrow-up"></i></span>
+            <div>
+                <b>{{ ($capabilities['unlimited'] ?? false) ? 'نامحدود' : number_format($capabilities['max_file_mb'] ?? 0).' MB' }}</b>
+                <small>سقف فایل</small>
+            </div>
+        </article>
     </section>
-    <div class="dashboard-content-grid">
-        <section class="panel capability-panel"><div class="panel-heading"><div><h2>قابلیت‌های حساب</h2><p>دسترسی‌ها از سمت سامانه محاسبه می‌شوند و صرفاً نمایشی نیستند.</p></div></div><div class="capability-chips">
-            @foreach(['can_type'=>'تایپ و ویرایش','can_ai'=>'هوش مصنوعی','can_voice'=>'تایپ صوتی','can_export_docx'=>'خروجی Word','can_export_pdf'=>'خروجی PDF','can_feedback'=>'بازخورد','can_support'=>'پشتیبانی'] as $key=>$label)
-                <span class="cap-chip {{ $capabilities[$key] ? 'on' : 'off' }}"><i class="fa-solid {{ $capabilities[$key] ? 'fa-check' : 'fa-lock' }}"></i>{{ $label }}</span>
-            @endforeach
-        </div></section>
-        <section class="panel account-panel"><div class="panel-heading"><div><h2>حساب و دسترسی</h2><p>وضعیت فعلی حساب شما</p></div></div><div class="account-state"><span class="account-state__icon"><i class="fa-solid {{ $capabilities['active'] ? 'fa-user-check' : 'fa-user-lock' }}"></i></span><div><strong>{{ $capabilities['active'] ? 'حساب فعال' : 'دسترسی محدود' }}</strong><small>{{ auth()->user()->is_verified ? 'حساب تأییدشده' : 'حساب هنوز تأیید نشده است' }}</small></div></div><div class="account-actions">@if($capabilities['can_support'])<a href="{{ route('support') }}"><i class="fa-solid fa-headset"></i> پشتیبانی</a>@endif<a href="{{ route('wallet') }}"><i class="fa-solid fa-wallet"></i> کیف پول</a></div></section>
+
+    <div class="workspace-grid">
+        <section class="workspace-panel">
+            <div class="workspace-panel__head">
+                <div>
+                    <h2>قابلیت‌های حساب</h2>
+                    <p>دسترسی‌ها از سمت سرور محاسبه می‌شوند.</p>
+                </div>
+            </div>
+            <div class="workspace-caps">
+                @foreach([
+                    'can_type' => 'تایپ و ویرایش',
+                    'can_ai' => 'هوش مصنوعی',
+                    'can_voice' => 'تایپ صوتی',
+                    'can_export_docx' => 'خروجی Word',
+                    'can_export_pdf' => 'خروجی PDF',
+                    'can_feedback' => 'بازخورد',
+                    'can_support' => 'پشتیبانی',
+                ] as $key => $label)
+                    <span class="workspace-cap {{ ($capabilities[$key] ?? false) ? 'is-on' : 'is-off' }}">
+                        <i class="fa-solid {{ ($capabilities[$key] ?? false) ? 'fa-check' : 'fa-lock' }}"></i>
+                        {{ $label }}
+                    </span>
+                @endforeach
+            </div>
+        </section>
+
+        <section class="workspace-panel">
+            <div class="workspace-panel__head">
+                <div>
+                    <h2>وضعیت حساب</h2>
+                    <p>{{ auth()->user()->mobile }}</p>
+                </div>
+            </div>
+            <div class="workspace-account">
+                <div class="workspace-account__state">
+                    <span class="workspace-account__badge {{ ($capabilities['active'] ?? false) ? 'is-on' : 'is-off' }}">
+                        <i class="fa-solid {{ ($capabilities['active'] ?? false) ? 'fa-user-check' : 'fa-user-lock' }}"></i>
+                        {{ ($capabilities['active'] ?? false) ? 'حساب فعال' : 'دسترسی محدود' }}
+                    </span>
+                    <small>{{ auth()->user()->is_verified ? 'تأییدشده' : 'هنوز تأیید نشده' }}</small>
+                </div>
+                <div class="workspace-account__links">
+                    @if($capabilities['can_support'] ?? false)
+                        <a href="{{ route('support') }}"><i class="fa-solid fa-headset"></i> پشتیبانی</a>
+                    @endif
+                    <a href="{{ route('wallet') }}"><i class="fa-solid fa-wallet"></i> کیف پول</a>
+                    <a href="{{ route('account.show') }}"><i class="fa-solid fa-user-gear"></i> تنظیمات</a>
+                    <a href="{{ route('workspace.actions') }}"><i class="fa-solid fa-bell"></i> اقدام‌ها</a>
+                </div>
+            </div>
+        </section>
     </div>
-    <section class="panel recent-documents"><div class="panel-heading"><div><h2>اسناد اخیر</h2><p>هر سند فقط برای حساب مالک آن نمایش داده می‌شود.</p></div><span class="dashboard-count">{{ number_format($documents->count()) }}</span></div>
-        @forelse($documents as $d)<article class="doc"><span><i class="fa-regular fa-file-lines"></i><span>{{ $d->title }}</span></span><span>{{ number_format($d->page_count) }} صفحه</span><span>{{ number_format($d->price_rials) }} ریال</span><a href="{{ route('editor') }}"><i class="fa-solid fa-arrow-left"></i> باز کردن در ویرایشگر</a></article>
-        @empty<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>هنوز سندی ندارید.</p>@if($capabilities['can_type'])<a href="{{ route('editor') }}">ایجاد اولین سند</a>@endif</div>@endforelse
+
+    <section class="workspace-panel workspace-panel--wide">
+        <div class="workspace-panel__head">
+            <div>
+                <h2>اسناد اخیر</h2>
+                <p>فقط اسناد متعلق به حساب شما نمایش داده می‌شود.</p>
+            </div>
+            <span class="workspace-count">{{ number_format($documents->count()) }}</span>
+        </div>
+        <div class="workspace-docs">
+            @forelse($documents as $d)
+                <article class="workspace-doc">
+                    <div class="workspace-doc__title">
+                        <i class="fa-regular fa-file-lines"></i>
+                        <span>{{ $d->title }}</span>
+                    </div>
+                    <span>{{ number_format($d->page_count) }} صفحه</span>
+                    <span>{{ number_format($d->price_rials) }} ریال</span>
+                    <a href="{{ route('editor.show', $d) }}" class="workspace-doc__open">باز کردن</a>
+                </article>
+            @empty
+                <div class="workspace-empty">
+                    <i class="fa-regular fa-folder-open"></i>
+                    <p>هنوز سندی ندارید. از «تایپ جدید» شروع کنید.</p>
+                </div>
+            @endforelse
+        </div>
     </section>
 </div>
 @endsection
